@@ -17,6 +17,8 @@ struct MapExploreView: View {
         NavigationStack {
             MapReader { proxy in
                 Map(position: $cameraPosition) {
+                    UserAnnotation()
+
                     if hasSelection {
                         Marker("Selected", coordinate: selectedCoordinate)
                             .tint(.blue)
@@ -28,6 +30,7 @@ struct MapExploreView: View {
                     }
                 }
                 .mapControls {
+                    MapUserLocationButton()
                     MapCompass()
                     MapScaleView()
                 }
@@ -74,7 +77,7 @@ struct MapExploreView: View {
                     }
                 }
             }
-            .navigationTitle("RainClaude")
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
         }
     }

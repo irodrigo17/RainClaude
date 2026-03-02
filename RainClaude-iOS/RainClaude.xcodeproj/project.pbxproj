@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -26,7 +26,7 @@
 		36F07BDA81B746CEF21AD2D9 /* LocationRainfallSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationRainfallSheet.swift; sourceTree = "<group>"; };
 		6E285C4281DD9C4ABFD5E6F0 /* RainClaudeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainClaudeApp.swift; sourceTree = "<group>"; };
 		744879444057483CC6661630 /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
-		88CC3FF9DE1058CB0FD2C828 /* RainClaude.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = RainClaude.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		88CC3FF9DE1058CB0FD2C828 /* RainClaude.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RainClaude.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BB0F8584B7ADED8B4099F75 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8F8930ED95B981ED29139237 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		9F81B48B2FECDB1A26677D74 /* MapExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapExploreView.swift; sourceTree = "<group>"; };
@@ -141,7 +141,6 @@
 			);
 			mainGroup = B6CCE8C79FA17EE161F06CCA;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -192,6 +191,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RainClaude/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "RainClaude can use your location to center the map.";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -200,7 +201,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.rainclaude.app;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -214,6 +215,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RainClaude/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "RainClaude can use your location to center the map.";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -222,7 +225,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.rainclaude.app;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
