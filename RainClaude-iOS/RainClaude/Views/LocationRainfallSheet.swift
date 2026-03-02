@@ -6,14 +6,20 @@ struct LocationRainfallSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     let coordinate: CLLocationCoordinate2D
+    var placeID: UUID? = nil
 
     @State private var placeName = "Loading..."
     @State private var rainfallSummary: RainfallSummary?
     @State private var isLoading = true
     @State private var errorMessage: String?
+    @State private var showingRenameAlert = false
+    @State private var editingName = ""
 
-    private var nearbyPlace: Place? {
-        placeStore.placeNear(latitude: coordinate.latitude, longitude: coordinate.longitude)
+    private var savedPlace: Place? {
+        if let placeID, let place = placeStore.places.first(where: { $0.id == placeID }) {
+            return place
+        }
+        return placeStore.placeNear(latitude: coordinate.latitude, longitude: coordinate.longitude)
     }
 
     var body: some View {
@@ -46,13 +52,35 @@ struct LocationRainfallSheet: View {
                     Button("Close") { dismiss() }
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        toggleSaved()
-                    } label: {
-                        Image(systemName: nearbyPlace != nil ? "star.fill" : "star")
+                    HStack(spacing: 12) {
+                        Button {
+                            editingName = placeName
+                            showingRenameAlert = true
+                        } label: {
+                            Image(systemName: "pencil")
+                        }
+                        .disabled(isLoading)
+
+                        Button {
+                            toggleSaved()
+                        } label: {
+                            Image(systemName: savedPlace != nil ? "star.fill" : "star")
+                        }
+                        .disabled(isLoading)
                     }
-                    .disabled(placeName == "Loading...")
                 }
+            }
+            .alert("Rename", isPresented: $showingRenameAlert) {
+                TextField("Name", text: $editingName)
+                Button("Save") {
+                    let trimmed = editingName.trimmingCharacters(in: .whitespaces)
+                    guard !trimmed.isEmpty else { return }
+                    placeName = trimmed
+                    if let existing = savedPlace {
+                        placeStore.renamePlace(existing, to: trimmed)
+                    }
+                }
+                Button("Cancel", role: .cancel) { }
             }
         }
         .presentationDetents([.medium, .large])
@@ -64,19 +92,24 @@ struct LocationRainfallSheet: View {
     // MARK: - Data Loading
 
     private func loadData() async {
-        // Reverse geocode
-        let geocoder = CLGeocoder()
-        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        do {
-            let placemarks = try await geocoder.reverseGeocodeLocation(location)
-            if let pm = placemarks.first {
-                let parts = [pm.locality, pm.administrativeArea, pm.country].compactMap { $0 }
-                placeName = parts.isEmpty ? formatCoordinate() : parts.joined(separator: ", ")
-            } else {
+        // Use saved name if available
+        if let saved = savedPlace {
+            placeName = saved.name
+        } else {
+            // Reverse geocode
+            let geocoder = CLGeocoder()
+            let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            do {
+                let placemarks = try await geocoder.reverseGeocodeLocation(location)
+                if let pm = placemarks.first {
+                    let parts = [pm.locality, pm.administrativeArea, pm.country].compactMap { $0 }
+                    placeName = parts.isEmpty ? formatCoordinate() : parts.joined(separator: ", ")
+                } else {
+                    placeName = formatCoordinate()
+                }
+            } catch {
                 placeName = formatCoordinate()
             }
-        } catch {
-            placeName = formatCoordinate()
         }
 
         // Fetch rainfall
@@ -97,7 +130,7 @@ struct LocationRainfallSheet: View {
     }
 
     private func toggleSaved() {
-        if let existing = nearbyPlace {
+        if let existing = savedPlace {
             placeStore.removePlace(existing)
         } else {
             placeStore.addPlace(

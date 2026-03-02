@@ -6,6 +6,8 @@ struct SavedPlacesView: View {
     @State private var rainfallData: [UUID: RainfallSummary] = [:]
     @State private var loadingPlaces: Set<UUID> = []
     @State private var errors: [UUID: String] = [:]
+    @State private var renamingPlace: Place?
+    @State private var editingName = ""
 
     var body: some View {
         NavigationStack {
@@ -23,7 +25,11 @@ struct SavedPlacesView: View {
                                 place: place,
                                 rainfall: rainfallData[place.id],
                                 isLoading: loadingPlaces.contains(place.id),
-                                error: errors[place.id]
+                                error: errors[place.id],
+                                onRename: {
+                                    editingName = place.name
+                                    renamingPlace = place
+                                }
                             )
                         }
                         .onDelete { offsets in
@@ -38,6 +44,20 @@ struct SavedPlacesView: View {
             }
             .task {
                 await loadAllRainfall()
+            }
+            .alert("Rename", isPresented: Binding(
+                get: { renamingPlace != nil },
+                set: { if !$0 { renamingPlace = nil } }
+            )) {
+                TextField("Name", text: $editingName)
+                Button("Save") {
+                    let trimmed = editingName.trimmingCharacters(in: .whitespaces)
+                    if let place = renamingPlace, !trimmed.isEmpty {
+                        placeStore.renamePlace(place, to: trimmed)
+                    }
+                    renamingPlace = nil
+                }
+                Button("Cancel", role: .cancel) { renamingPlace = nil }
             }
         }
     }
@@ -86,12 +106,19 @@ private struct PlaceRow: View {
     let rainfall: RainfallSummary?
     let isLoading: Bool
     let error: String?
+    var onRename: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(place.name)
                     .font(.headline)
+                Button(action: onRename) {
+                    Image(systemName: "pencil")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
                 Spacer()
                 if let rainfall {
                     lastRainBadge(rainfall)

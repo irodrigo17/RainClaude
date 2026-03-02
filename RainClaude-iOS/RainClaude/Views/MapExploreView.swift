@@ -8,6 +8,8 @@ struct MapExploreView: View {
     @State private var selectedCoordinate = CLLocationCoordinate2D()
     @State private var hasSelection = false
     @State private var showingSheet = false
+    @State private var mapSelection: UUID?
+    @State private var selectedPlaceID: UUID?
 
     @State private var searchText = ""
     @State private var searchResults: [MKMapItem] = []
@@ -16,7 +18,7 @@ struct MapExploreView: View {
     var body: some View {
         NavigationStack {
             MapReader { proxy in
-                Map(position: $cameraPosition) {
+                Map(position: $cameraPosition, selection: $mapSelection) {
                     UserAnnotation()
 
                     if hasSelection {
@@ -27,6 +29,7 @@ struct MapExploreView: View {
                     ForEach(placeStore.places) { place in
                         Marker(place.name, coordinate: place.coordinate)
                             .tint(.orange)
+                            .tag(place.id)
                     }
                 }
                 .mapControls {
@@ -37,12 +40,22 @@ struct MapExploreView: View {
                 .onTapGesture { screenPosition in
                     guard let coordinate = proxy.convert(screenPosition, from: .local) else { return }
                     selectedCoordinate = coordinate
+                    selectedPlaceID = nil
                     hasSelection = true
                     showingSheet = true
                 }
+                .onChange(of: mapSelection) { _, newValue in
+                    guard let placeID = newValue,
+                          let place = placeStore.places.first(where: { $0.id == placeID }) else { return }
+                    selectedCoordinate = place.coordinate
+                    selectedPlaceID = placeID
+                    hasSelection = false
+                    showingSheet = true
+                    mapSelection = nil
+                }
             }
             .sheet(isPresented: $showingSheet) {
-                LocationRainfallSheet(coordinate: selectedCoordinate)
+                LocationRainfallSheet(coordinate: selectedCoordinate, placeID: selectedPlaceID)
                     .environmentObject(placeStore)
             }
             .searchable(text: $searchText, prompt: "Search places")
@@ -107,8 +120,8 @@ struct MapExploreView: View {
             span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
         ))
         selectedCoordinate = coordinate
+        selectedPlaceID = nil
         hasSelection = true
-        searchText = ""
         searchResults = []
         showingSheet = true
     }

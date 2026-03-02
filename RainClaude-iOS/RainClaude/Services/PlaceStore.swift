@@ -16,6 +16,12 @@ class PlaceStore: ObservableObject {
         save()
     }
 
+    func renamePlace(_ place: Place, to newName: String) {
+        guard let index = places.firstIndex(where: { $0.id == place.id }) else { return }
+        places[index].name = newName
+        save()
+    }
+
     func removePlace(_ place: Place) {
         places.removeAll { $0.id == place.id }
         save()
