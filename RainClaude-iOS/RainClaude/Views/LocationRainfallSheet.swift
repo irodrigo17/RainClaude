@@ -54,6 +54,13 @@ struct LocationRainfallSheet: View {
                 ToolbarItem(placement: .primaryAction) {
                     HStack(spacing: 12) {
                         Button {
+                            openInMaps()
+                        } label: {
+                            Image(systemName: "map")
+                        }
+                        .disabled(isLoading)
+
+                        Button {
                             editingName = placeName
                             showingRenameAlert = true
                         } label: {
@@ -140,5 +147,11 @@ struct LocationRainfallSheet: View {
                 Place(name: placeName, latitude: coordinate.latitude, longitude: coordinate.longitude)
             )
         }
+    }
+
+    private func openInMaps() {
+        let mapItem = MKMapItem(location: CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude), address: nil)
+        mapItem.name = placeName
+        mapItem.openInMaps()
     }
 }

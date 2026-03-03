@@ -84,7 +84,7 @@ struct MapExploreView: View {
 
     // Rainfall overlay
     @StateObject private var gridService = RainfallGridService()
-    @State private var overlayVisible = true
+    @State private var overlayVisible = false
     @State private var overlayTimeframe: RainfallTimeframe = .threeDays
     @State private var overlayOpacity: Double = 0.3
     @State private var cameraChangeCount = 0

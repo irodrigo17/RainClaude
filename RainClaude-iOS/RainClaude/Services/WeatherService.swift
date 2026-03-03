@@ -53,7 +53,17 @@ enum WeatherService {
 
     // MARK: - Fetch
 
-    static func fetchRainfall(latitude: Double, longitude: Double) async throws -> RainfallSummary {
+    private static let detailSession: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15
+        return URLSession(configuration: config)
+    }()
+
+    static func fetchRainfall(
+        latitude: Double,
+        longitude: Double,
+        session: URLSession? = nil
+    ) async throws -> RainfallSummary {
         var components = URLComponents(string: "https://api.open-meteo.com/v1/forecast")!
         components.queryItems = [
             URLQueryItem(name: "latitude", value: String(format: "%.6f", latitude)),
@@ -68,7 +78,7 @@ enum WeatherService {
             throw WeatherError.invalidURL
         }
 
-        let (data, response) = try await URLSession.shared.data(from: url)
+        let (data, response) = try await (session ?? detailSession).data(from: url)
 
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw WeatherError.invalidResponse

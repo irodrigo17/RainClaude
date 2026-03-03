@@ -1,4 +1,5 @@
 import SwiftUI
+import MapKit
 
 struct SavedPlacesView: View {
     @EnvironmentObject private var placeStore: PlaceStore
@@ -31,6 +32,14 @@ struct SavedPlacesView: View {
                                     renamingPlace = place
                                 }
                             )
+                            .swipeActions(edge: .leading) {
+                                Button {
+                                    openInMaps(place)
+                                } label: {
+                                    Label("Maps", systemImage: "map")
+                                }
+                                .tint(.blue)
+                            }
                         }
                         .onDelete { offsets in
                             placeStore.removePlaces(at: offsets)
@@ -62,7 +71,11 @@ struct SavedPlacesView: View {
         }
     }
 
-    // MARK: - Loading
+    private func openInMaps(_ place: Place) {
+        let mapItem = MKMapItem(location: CLLocation(latitude: place.latitude, longitude: place.longitude), address: nil)
+        mapItem.name = place.name
+        mapItem.openInMaps()
+    }
 
     private func loadAllRainfall() async {
         let placesToLoad = placeStore.places

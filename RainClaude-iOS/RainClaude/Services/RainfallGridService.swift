@@ -55,6 +55,15 @@ final class RainfallGridService: ObservableObject {
     private var updateTask: Task<Void, Never>?
     private var lastRegion: MKCoordinateRegion?
 
+    // MARK: - Network
+
+    private let gridSession: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.httpMaximumConnectionsPerHost = 4
+        config.timeoutIntervalForRequest = 15
+        return URLSession(configuration: config)
+    }()
+
     // MARK: - Image cache
 
     private var imageCache: [RainfallTimeframe: UIImage] = [:]
@@ -237,19 +246,33 @@ final class RainfallGridService: ObservableObject {
         if !uncachedPoints.isEmpty {
             isLoading = true
 
+            let session = gridSession
             await withTaskGroup(of: (CacheKey, RainfallSummary?).self) { group in
+                let maxConcurrent = 4
+                var inflight = 0
+
                 for point in uncachedPoints {
+                    if inflight >= maxConcurrent {
+                        if let (key, summary) = await group.next() {
+                            if let summary {
+                                cache[key] = CacheEntry(summary: summary, timestamp: Date())
+                            }
+                            inflight -= 1
+                        }
+                    }
                     group.addTask {
                         do {
                             let summary = try await WeatherService.fetchRainfall(
                                 latitude: point.lat,
-                                longitude: point.lon
+                                longitude: point.lon,
+                                session: session
                             )
                             return (point.key, summary)
                         } catch {
                             return (point.key, nil)
                         }
                     }
+                    inflight += 1
                 }
 
                 for await (key, summary) in group {
