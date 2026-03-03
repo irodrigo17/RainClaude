@@ -1,5 +1,5 @@
 import SwiftUI
-import CoreLocation
+import MapKit
 
 struct LocationRainfallSheet: View {
     @EnvironmentObject private var placeStore: PlaceStore
@@ -97,17 +97,20 @@ struct LocationRainfallSheet: View {
             placeName = saved.name
         } else {
             // Reverse geocode
-            let geocoder = CLGeocoder()
             let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-            do {
-                let placemarks = try await geocoder.reverseGeocodeLocation(location)
-                if let pm = placemarks.first {
-                    let parts = [pm.locality, pm.administrativeArea, pm.country].compactMap { $0 }
-                    placeName = parts.isEmpty ? formatCoordinate() : parts.joined(separator: ", ")
-                } else {
+            if let request = MKReverseGeocodingRequest(location: location) {
+                do {
+                    let mapItems = try await request.mapItems
+                    if let item = mapItems.first,
+                       let cityContext = item.addressRepresentations?.cityWithContext {
+                        placeName = cityContext
+                    } else {
+                        placeName = formatCoordinate()
+                    }
+                } catch {
                     placeName = formatCoordinate()
                 }
-            } catch {
+            } else {
                 placeName = formatCoordinate()
             }
         }

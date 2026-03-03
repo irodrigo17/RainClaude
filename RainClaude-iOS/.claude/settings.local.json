@@ -9,7 +9,8 @@
       "Bash(XCODEGEN_SHARE_PATH=/tmp/xcodegen/xcodegen/share/xcodegen /tmp/xcodegen/xcodegen/bin/xcodegen:*)",
       "Bash(xcodebuild:*)",
       "Bash(echo:*)",
-      "Bash(xattr:*)"
+      "Bash(xattr:*)",
+      "Bash(xcrun swift:*)"
     ]
   }
 }

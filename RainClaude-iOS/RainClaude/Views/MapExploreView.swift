@@ -89,6 +89,7 @@ struct MapExploreView: View {
     @State private var overlayOpacity: Double = 0.3
     @State private var cameraChangeCount = 0
     @State private var visibleRegion: MKCoordinateRegion?
+    @State private var containerHeight: CGFloat = 800
 
     var body: some View {
         MapReader { proxy in
@@ -170,6 +171,13 @@ struct MapExploreView: View {
                     gridService.refetch()
                 }
             }
+            .background {
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { containerHeight = geo.size.height }
+                        .onChange(of: geo.size.height) { _, h in containerHeight = h }
+                }
+            }
         }
         .sheet(isPresented: $showingSheet) {
             LocationRainfallSheet(coordinate: selectedCoordinate, placeID: selectedPlaceID)
@@ -198,7 +206,7 @@ struct MapExploreView: View {
                                     Text(item.name ?? "Unknown")
                                         .font(.subheadline)
                                         .foregroundStyle(.primary)
-                                    if let subtitle = item.placemark.title, subtitle != item.name {
+                                    if let subtitle = item.address?.fullAddress, subtitle != item.name {
                                         Text(subtitle)
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
@@ -216,7 +224,7 @@ struct MapExploreView: View {
                     }
                 }
                 .scrollBounceBehavior(.basedOnSize)
-                .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
+                .frame(maxHeight: containerHeight * 0.5)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                 .padding(.horizontal, 8)
@@ -287,7 +295,7 @@ struct MapExploreView: View {
         var seen = Set<String>()
         var merged: [MKMapItem] = []
         for item in outdoor + general {
-            let key = "\(item.name ?? "")_\(String(format: "%.4f", item.placemark.coordinate.latitude))_\(String(format: "%.4f", item.placemark.coordinate.longitude))"
+            let key = "\(item.name ?? "")_\(String(format: "%.4f", item.location.coordinate.latitude))_\(String(format: "%.4f", item.location.coordinate.longitude))"
             if seen.insert(key).inserted {
                 merged.append(item)
             }
@@ -305,7 +313,7 @@ struct MapExploreView: View {
             // Filter POI results to those matching the search query
             return response.mapItems.filter { item in
                 let name = (item.name ?? "").lowercased()
-                let address = (item.placemark.title ?? "").lowercased()
+                let address = (item.address?.fullAddress ?? "").lowercased()
                 return name.contains(queryLower) || address.contains(queryLower)
             }
         } catch {
@@ -343,7 +351,7 @@ struct MapExploreView: View {
     ]
 
     private func selectSearchResult(_ item: MKMapItem) {
-        let coordinate = item.placemark.coordinate
+        let coordinate = item.location.coordinate
         cameraPosition = .region(MKCoordinateRegion(
             center: coordinate,
             span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)

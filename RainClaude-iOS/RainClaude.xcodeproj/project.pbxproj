@@ -14,14 +14,14 @@
 		78515DF55F43F5201709D0E6 /* RainfallData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C147F3CA961EBA4A7A3F7B /* RainfallData.swift */; };
 		9B2BE3499ABFA92D39B5F8B3 /* RainfallCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A9AA6050FC1D5C136700A5 /* RainfallCardView.swift */; };
 		A2C2CA39B6A30286CC5B81BE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB0F8584B7ADED8B4099F75 /* ContentView.swift */; };
-		BB2A3BBEBC1605581F8E40ED /* LocationRainfallSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F07BDA81B746CEF21AD2D9 /* LocationRainfallSheet.swift */; };
-		C200A36C09D984FE4A6A074F /* SavedPlacesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88F75D89426ECCBA66F0422 /* SavedPlacesView.swift */; };
-		C7A7B3A5364CF2C0353E79C5 /* MapExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F81B48B2FECDB1A26677D74 /* MapExploreView.swift */; };
-		D10A4F2607F22D9A5CFEAE0E /* Place.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0229A259C104D045364369B /* Place.swift */; };
 		AA1111110000000000000001 /* RainfallOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2222220000000000000001 /* RainfallOverlay.swift */; };
 		AA1111110000000000000002 /* RainfallColorScale.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2222220000000000000002 /* RainfallColorScale.swift */; };
 		AA1111110000000000000003 /* RainfallGridService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2222220000000000000003 /* RainfallGridService.swift */; };
 		AA1111110000000000000004 /* RainfallOverlayControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2222220000000000000004 /* RainfallOverlayControls.swift */; };
+		BB2A3BBEBC1605581F8E40ED /* LocationRainfallSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F07BDA81B746CEF21AD2D9 /* LocationRainfallSheet.swift */; };
+		C200A36C09D984FE4A6A074F /* SavedPlacesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88F75D89426ECCBA66F0422 /* SavedPlacesView.swift */; };
+		C7A7B3A5364CF2C0353E79C5 /* MapExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F81B48B2FECDB1A26677D74 /* MapExploreView.swift */; };
+		D10A4F2607F22D9A5CFEAE0E /* Place.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0229A259C104D045364369B /* Place.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,13 +35,13 @@
 		8F8930ED95B981ED29139237 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		9F81B48B2FECDB1A26677D74 /* MapExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapExploreView.swift; sourceTree = "<group>"; };
 		A0229A259C104D045364369B /* Place.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Place.swift; sourceTree = "<group>"; };
-		C67A5237BA565EB2FF746B50 /* PlaceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceStore.swift; sourceTree = "<group>"; };
-		E1BD3F49EA71439A72C03EF8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		F88F75D89426ECCBA66F0422 /* SavedPlacesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlacesView.swift; sourceTree = "<group>"; };
 		AA2222220000000000000001 /* RainfallOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainfallOverlay.swift; sourceTree = "<group>"; };
 		AA2222220000000000000002 /* RainfallColorScale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainfallColorScale.swift; sourceTree = "<group>"; };
 		AA2222220000000000000003 /* RainfallGridService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainfallGridService.swift; sourceTree = "<group>"; };
 		AA2222220000000000000004 /* RainfallOverlayControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainfallOverlayControls.swift; sourceTree = "<group>"; };
+		C67A5237BA565EB2FF746B50 /* PlaceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceStore.swift; sourceTree = "<group>"; };
+		E1BD3F49EA71439A72C03EF8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F88F75D89426ECCBA66F0422 /* SavedPlacesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlacesView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -136,7 +136,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					B90D90D0D58F1AD5E0E5EFA7 = {
 						DevelopmentTeam = "";
@@ -249,6 +249,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -282,6 +283,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -295,6 +297,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -305,6 +308,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -338,6 +342,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -358,6 +363,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
