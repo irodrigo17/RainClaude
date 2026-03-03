@@ -64,6 +64,7 @@
 		CC0000010000000000000006 /* WeatherServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherServiceTests.swift; sourceTree = "<group>"; };
 		CC0000020000000000000001 /* RainClaudeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RainClaudeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1BD3F49EA71439A72C03EF8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DD0000010000000000000001 /* RainClaude.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RainClaude.entitlements; sourceTree = "<group>"; };
 		F88F75D89426ECCBA66F0422 /* SavedPlacesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlacesView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -136,6 +137,7 @@
 				E1BD3F49EA71439A72C03EF8 /* Assets.xcassets */,
 				8BB0F8584B7ADED8B4099F75 /* ContentView.swift */,
 				8F8930ED95B981ED29139237 /* Info.plist */,
+				DD0000010000000000000001 /* RainClaude.entitlements */,
 				6E285C4281DD9C4ABFD5E6F0 /* RainClaudeApp.swift */,
 				CE20BECDFF7954DCCEF48C93 /* Models */,
 				80044E09560C3E5C1FA09803 /* Services */,
@@ -292,6 +294,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = RainClaude/RainClaude.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
@@ -316,6 +319,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = RainClaude/RainClaude.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
