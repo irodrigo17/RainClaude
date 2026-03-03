@@ -139,7 +139,7 @@ final class RainfallGridService: ObservableObject {
         guard let rawImage = createCGImage(from: &pixelData, width: imgWidth, height: imgHeight) else { return nil }
 
         // Apply Gaussian blur for extra smoothness
-        let blurred = applyBlur(to: rawImage, radius: 3) ?? UIImage(cgImage: rawImage)
+        let blurred = applyBlur(to: rawImage, radius: 1) ?? UIImage(cgImage: rawImage)
 
         // Cache the result
         if imageCacheVersion != gridVersion {
@@ -191,9 +191,9 @@ final class RainfallGridService: ObservableObject {
 
     @MainActor
     private func fetchGrid(for region: MKCoordinateRegion) async {
-        let maxCells = 8
-        let latStep = max(0.25, region.span.latitudeDelta / Double(maxCells))
-        let lonStep = max(0.25, region.span.longitudeDelta / Double(maxCells))
+        let maxCells = 12
+        let latStep = max(0.1, region.span.latitudeDelta / Double(maxCells))
+        let lonStep = max(0.1, region.span.longitudeDelta / Double(maxCells))
 
         // Pad region by one cell on each side to cover area behind safe area insets
         // (search bar, tab bar) where the map is visible but the reported region is smaller
