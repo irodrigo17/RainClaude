@@ -12,7 +12,9 @@
       "Bash(xattr:*)",
       "Bash(xcrun swift:*)",
       "Bash(xcrun simctl:*)",
-      "Bash(NSUnbufferedIO=YES xcodebuild test:*)"
+      "Bash(NSUnbufferedIO=YES xcodebuild test:*)",
+      "Bash(npx --yes @mermaid-js/mermaid-cli:*)",
+      "Bash(brew list:*)"
     ]
   }
 }
