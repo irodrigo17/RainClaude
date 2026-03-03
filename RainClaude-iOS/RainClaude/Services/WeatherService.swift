@@ -4,7 +4,7 @@ enum WeatherService {
 
     // MARK: - API Response
 
-    private struct OpenMeteoResponse: Codable {
+    struct OpenMeteoResponse: Codable {
         let daily: DailyData
 
         struct DailyData: Codable {
@@ -32,6 +32,25 @@ enum WeatherService {
         }
     }
 
+    // MARK: - Parsing
+
+    static func parseResponse(_ data: Data) throws -> RainfallSummary {
+        let decoded = try JSONDecoder().decode(OpenMeteoResponse.self, from: data)
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+
+        var daily: [DailyRainfall] = []
+        for (i, dateString) in decoded.daily.time.enumerated() {
+            guard let date = formatter.date(from: dateString) else { continue }
+            let amount = decoded.daily.precipitationSum[i] ?? 0.0
+            daily.append(DailyRainfall(date: date, amount: amount))
+        }
+
+        return RainfallSummary(daily: daily)
+    }
+
     // MARK: - Fetch
 
     static func fetchRainfall(latitude: Double, longitude: Double) async throws -> RainfallSummary {
@@ -55,19 +74,6 @@ enum WeatherService {
             throw WeatherError.invalidResponse
         }
 
-        let decoded = try JSONDecoder().decode(OpenMeteoResponse.self, from: data)
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-
-        var daily: [DailyRainfall] = []
-        for (i, dateString) in decoded.daily.time.enumerated() {
-            guard let date = formatter.date(from: dateString) else { continue }
-            let amount = decoded.daily.precipitationSum[i] ?? 0.0
-            daily.append(DailyRainfall(date: date, amount: amount))
-        }
-
-        return RainfallSummary(daily: daily)
+        return try parseResponse(data)
     }
 }

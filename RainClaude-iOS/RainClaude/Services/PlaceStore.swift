@@ -11,6 +11,11 @@ class PlaceStore: ObservableObject {
         load()
     }
 
+    init(fileURL: URL) {
+        self.fileURL = fileURL
+        load()
+    }
+
     func addPlace(_ place: Place) {
         places.append(place)
         save()

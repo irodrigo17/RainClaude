@@ -10,7 +10,9 @@
       "Bash(xcodebuild:*)",
       "Bash(echo:*)",
       "Bash(xattr:*)",
-      "Bash(xcrun swift:*)"
+      "Bash(xcrun swift:*)",
+      "Bash(xcrun simctl:*)",
+      "Bash(NSUnbufferedIO=YES xcodebuild test:*)"
     ]
   }
 }
