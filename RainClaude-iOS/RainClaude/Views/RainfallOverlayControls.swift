@@ -9,15 +9,15 @@ struct RainfallOverlayControls: View {
     @State private var isExpanded = false
 
     var body: some View {
-        VStack(alignment: .trailing, spacing: 8) {
-            if isExpanded {
-                controlPanel
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+        toggleButton
+            .overlay(alignment: .bottomTrailing) {
+                if isExpanded {
+                    controlPanel
+                        .offset(y: -54)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
-
-            toggleButton
-        }
-        .animation(.easeInOut(duration: 0.25), value: isExpanded)
+            .animation(.easeInOut(duration: 0.25), value: isExpanded)
     }
 
     // MARK: - Toggle Button
@@ -31,19 +31,19 @@ struct RainfallOverlayControls: View {
                 isExpanded = true
             }
         } label: {
-            HStack(spacing: 6) {
+            ZStack {
                 if isLoading {
                     ProgressView()
                         .controlSize(.small)
                 }
                 Image(systemName: isVisible ? "cloud.rain.fill" : "cloud.rain")
-                    .font(.body)
+                    .font(.system(size: 16))
+                    .opacity(isLoading ? 0 : 1)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(.ultraThinMaterial, in: Capsule())
+            .frame(width: 44, height: 44)
         }
         .tint(isVisible ? .blue : .primary)
+        .background(.ultraThickMaterial, in: RoundedRectangle(cornerRadius: 8))
     }
 
     // MARK: - Control Panel

@@ -17,9 +17,9 @@ struct MapExploreView: View {
 
     // Rainfall overlay
     @StateObject private var gridService = RainfallGridService()
-    @State private var overlayVisible = false
-    @State private var overlayTimeframe: RainfallTimeframe = .oneDay
-    @State private var overlayOpacity: Double = 0.4
+    @State private var overlayVisible = true
+    @State private var overlayTimeframe: RainfallTimeframe = .threeDays
+    @State private var overlayOpacity: Double = 0.3
     @State private var cameraChangeCount = 0
 
     var body: some View {
@@ -40,7 +40,6 @@ struct MapExploreView: View {
                     }
                 }
                 .mapControls {
-                    MapUserLocationButton()
                     MapCompass()
                     MapScaleView()
                 }
@@ -70,12 +69,24 @@ struct MapExploreView: View {
                     rainfallImageOverlay(proxy: proxy)
                 }
                 .overlay(alignment: .bottomTrailing) {
-                    RainfallOverlayControls(
-                        isVisible: $overlayVisible,
-                        timeframe: $overlayTimeframe,
-                        opacity: $overlayOpacity,
-                        isLoading: gridService.isLoading
-                    )
+                    VStack(alignment: .trailing, spacing: 10) {
+                        RainfallOverlayControls(
+                            isVisible: $overlayVisible,
+                            timeframe: $overlayTimeframe,
+                            opacity: $overlayOpacity,
+                            isLoading: gridService.isLoading
+                        )
+
+                        Button {
+                            cameraPosition = .userLocation(fallback: .automatic)
+                        } label: {
+                            Image(systemName: "location.fill")
+                                .font(.system(size: 16))
+                                .frame(width: 44, height: 44)
+                        }
+                        .tint(.primary)
+                        .background(.ultraThickMaterial, in: RoundedRectangle(cornerRadius: 8))
+                    }
                     .padding(12)
                 }
                 .onChange(of: overlayVisible) { _, visible in
