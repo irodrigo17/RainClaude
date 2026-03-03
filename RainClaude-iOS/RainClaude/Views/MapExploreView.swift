@@ -88,6 +88,7 @@ struct MapExploreView: View {
     @State private var overlayTimeframe: RainfallTimeframe = .threeDays
     @State private var overlayOpacity: Double = 0.3
     @State private var cameraChangeCount = 0
+    @State private var visibleRegion: MKCoordinateRegion?
 
     var body: some View {
         MapReader { proxy in
@@ -132,6 +133,7 @@ struct MapExploreView: View {
             }
             .onMapCameraChange(frequency: .onEnd) { context in
                 cameraChangeCount += 1
+                visibleRegion = context.region
                 if overlayVisible {
                     gridService.updateRegion(context.region)
                 }
@@ -200,18 +202,23 @@ struct MapExploreView: View {
                                         Text(subtitle)
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
+                                            .lineLimit(1)
                                     }
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 10)
                             }
-                            Divider().padding(.leading, 12)
+                            if item != searchResults.last {
+                                Divider().padding(.leading, 12)
+                            }
                         }
                     }
                 }
-                .frame(maxHeight: 240)
-                .background(.ultraThickMaterial, in: RoundedRectangle(cornerRadius: 12))
+                .scrollBounceBehavior(.basedOnSize)
+                .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
+                .fixedSize(horizontal: false, vertical: true)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                 .padding(.horizontal, 8)
             }
         }
@@ -263,6 +270,63 @@ struct MapExploreView: View {
     }
 
     private func runSearch(query: String) async {
+        guard let region = visibleRegion else {
+            // Fallback: general search only
+            await runGeneralSearch(query: query)
+            return
+        }
+
+        // Run outdoor POI search and general search in parallel
+        async let outdoorResults = runOutdoorPOISearch(query: query, region: region)
+        async let generalResults = runGeneralSearchResults(query: query, region: region)
+
+        let outdoor = await outdoorResults
+        let general = await generalResults
+
+        // Merge: outdoor POI results first, then general (deduplicated)
+        var seen = Set<String>()
+        var merged: [MKMapItem] = []
+        for item in outdoor + general {
+            let key = "\(item.name ?? "")_\(String(format: "%.4f", item.placemark.coordinate.latitude))_\(String(format: "%.4f", item.placemark.coordinate.longitude))"
+            if seen.insert(key).inserted {
+                merged.append(item)
+            }
+        }
+        searchResults = merged
+    }
+
+    private func runOutdoorPOISearch(query: String, region: MKCoordinateRegion) async -> [MKMapItem] {
+        let poiRequest = MKLocalPointsOfInterestRequest(coordinateRegion: region)
+        poiRequest.pointOfInterestFilter = MKPointOfInterestFilter(including: Self.outdoorCategories)
+        let search = MKLocalSearch(request: poiRequest)
+        do {
+            let response = try await search.start()
+            let queryLower = query.lowercased()
+            // Filter POI results to those matching the search query
+            return response.mapItems.filter { item in
+                let name = (item.name ?? "").lowercased()
+                let address = (item.placemark.title ?? "").lowercased()
+                return name.contains(queryLower) || address.contains(queryLower)
+            }
+        } catch {
+            return []
+        }
+    }
+
+    private func runGeneralSearchResults(query: String, region: MKCoordinateRegion) async -> [MKMapItem] {
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = query
+        request.region = region
+        let search = MKLocalSearch(request: request)
+        do {
+            let response = try await search.start()
+            return response.mapItems
+        } catch {
+            return []
+        }
+    }
+
+    private func runGeneralSearch(query: String) async {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = query
         let search = MKLocalSearch(request: request)
@@ -273,6 +337,10 @@ struct MapExploreView: View {
             searchResults = []
         }
     }
+
+    private static let outdoorCategories: [MKPointOfInterestCategory] = [
+        .nationalPark, .park, .campground, .hiking
+    ]
 
     private func selectSearchResult(_ item: MKMapItem) {
         let coordinate = item.placemark.coordinate
