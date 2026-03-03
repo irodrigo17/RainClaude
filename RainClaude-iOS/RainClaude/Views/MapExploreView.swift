@@ -15,6 +15,13 @@ struct MapExploreView: View {
     @State private var searchResults: [MKMapItem] = []
     @State private var searchTask: Task<Void, Never>?
 
+    // Rainfall overlay
+    @StateObject private var gridService = RainfallGridService()
+    @State private var overlayVisible = false
+    @State private var overlayTimeframe: RainfallTimeframe = .oneDay
+    @State private var overlayOpacity: Double = 0.4
+    @State private var cameraChangeCount = 0
+
     var body: some View {
         NavigationStack {
             MapReader { proxy in
@@ -52,6 +59,29 @@ struct MapExploreView: View {
                     hasSelection = false
                     showingSheet = true
                     mapSelection = nil
+                }
+                .onMapCameraChange(frequency: .onEnd) { context in
+                    cameraChangeCount += 1
+                    if overlayVisible {
+                        gridService.updateRegion(context.region)
+                    }
+                }
+                .overlay {
+                    rainfallImageOverlay(proxy: proxy)
+                }
+                .overlay(alignment: .bottomTrailing) {
+                    RainfallOverlayControls(
+                        isVisible: $overlayVisible,
+                        timeframe: $overlayTimeframe,
+                        opacity: $overlayOpacity,
+                        isLoading: gridService.isLoading
+                    )
+                    .padding(12)
+                }
+                .onChange(of: overlayVisible) { _, visible in
+                    if visible {
+                        gridService.refetch()
+                    }
                 }
             }
             .sheet(isPresented: $showingSheet) {
@@ -92,6 +122,33 @@ struct MapExploreView: View {
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    // MARK: - Rainfall Image Overlay
+
+    @ViewBuilder
+    private func rainfallImageOverlay(proxy: MapProxy) -> some View {
+        // Reference published properties to trigger re-renders
+        let _ = gridService.gridVersion
+        let _ = cameraChangeCount
+
+        if overlayVisible,
+           let bounds = gridService.gridBounds,
+           let image = gridService.rainfallImage(for: overlayTimeframe),
+           let tl = proxy.convert(bounds.topLeft, to: .local),
+           let br = proxy.convert(bounds.bottomRight, to: .local) {
+            let width = br.x - tl.x
+            let height = br.y - tl.y
+            if width > 0, height > 0 {
+                Image(uiImage: image)
+                    .resizable()
+                    .interpolation(.high)
+                    .frame(width: width, height: height)
+                    .position(x: (tl.x + br.x) / 2, y: (tl.y + br.y) / 2)
+                    .opacity(overlayOpacity)
+                    .allowsHitTesting(false)
+            }
         }
     }
 

@@ -12,6 +12,14 @@ struct RainfallSummary {
     let last7Days: Double
     let daysSinceLastRain: Int? // nil = no rain in available data (~30 days)
 
+    init(last1Day: Double, last2Days: Double, last3Days: Double, last7Days: Double, daysSinceLastRain: Int?) {
+        self.last1Day = last1Day
+        self.last2Days = last2Days
+        self.last3Days = last3Days
+        self.last7Days = last7Days
+        self.daysSinceLastRain = daysSinceLastRain
+    }
+
     init(daily: [DailyRainfall]) {
         let sorted = daily.sorted { $0.date > $1.date }
 
