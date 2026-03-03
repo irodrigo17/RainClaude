@@ -347,7 +347,7 @@ struct MapExploreView: View {
     }
 
     private static let outdoorCategories: [MKPointOfInterestCategory] = [
-        .nationalPark, .park, .campground, .hiking
+        .hiking
     ]
 
     private func selectSearchResult(_ item: MKMapItem) {

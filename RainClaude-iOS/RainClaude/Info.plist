@@ -4,5 +4,12 @@
 <dict>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>RainClaude can use your location to center the map.</string>
+    <key>UILaunchScreen</key>
+    <dict>
+        <key>BackgroundColor</key>
+        <string>LaunchBackground</string>
+        <key>ImageName</key>
+        <string>LaunchImage</string>
+    </dict>
 </dict>
 </plist>

@@ -14,7 +14,12 @@
       "Bash(xcrun simctl:*)",
       "Bash(NSUnbufferedIO=YES xcodebuild test:*)",
       "Bash(npx --yes @mermaid-js/mermaid-cli:*)",
-      "Bash(brew list:*)"
+      "Bash(brew list:*)",
+      "Bash(python3:*)",
+      "Bash(swiftc:*)",
+      "Bash(./generate_icon:*)",
+      "Bash(pip3 install:*)",
+      "Bash(/Applications/Xcode_26.2.0_17C52_fb.app/Contents/Developer/usr/bin/python3:*)"
     ]
   }
 }
