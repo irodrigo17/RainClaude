@@ -81,6 +81,7 @@ struct MapExploreView: View {
     @State private var searchResults: [MKMapItem] = []
     @State private var searchTask: Task<Void, Never>?
     @State private var isSearchFocused = false
+    @State private var showingTrails = false
 
     // Rainfall overlay
     @StateObject private var gridService = RainfallGridService()
@@ -155,6 +156,16 @@ struct MapExploreView: View {
                     )
 
                     Button {
+                        showingTrails = true
+                    } label: {
+                        Image(systemName: "bicycle")
+                            .font(.system(size: 16))
+                            .frame(width: 44, height: 44)
+                    }
+                    .tint(.primary)
+                    .background(.ultraThickMaterial, in: RoundedRectangle(cornerRadius: 8))
+
+                    Button {
                         cameraPosition = .userLocation(fallback: .automatic)
                     } label: {
                         Image(systemName: "location.fill")
@@ -181,6 +192,10 @@ struct MapExploreView: View {
         }
         .sheet(isPresented: $showingSheet) {
             LocationRainfallSheet(coordinate: selectedCoordinate, placeID: selectedPlaceID)
+                .environmentObject(placeStore)
+        }
+        .sheet(isPresented: $showingTrails) {
+            TrailsSheet(region: visibleRegion ?? MKCoordinateRegion())
                 .environmentObject(placeStore)
         }
     }
