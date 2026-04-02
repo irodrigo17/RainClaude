@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>RainClaude</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -506,37 +506,92 @@
         .leaflet-popup-content-wrapper { border-radius: 10px !important; }
         .leaflet-popup-content { margin: 12px 14px !important; }
 
-        /* Mobile toggle */
-        .mob-toggle {
+        /* Mobile tab bar */
+        .mob-tabs {
             display: none;
-            background: none;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 5px 9px;
-            cursor: pointer;
-            font-size: 16px;
-            color: var(--text);
+            padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
         }
 
+        .mob-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-sec);
+            padding: 6px 0 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            transition: color 0.15s;
+        }
+
+        .mob-tab .tab-icon { font-size: 18px; }
+        .mob-tab.active { color: var(--accent); }
+
         @media (max-width: 740px) {
-            .mob-toggle { display: block; }
+            body { display: flex; flex-direction: column; }
+
+            header { flex-shrink: 0; }
+
+            main {
+                flex: 1;
+                min-height: 0;
+                height: auto;
+                overflow: hidden;
+                position: relative;
+            }
+
+            .mob-tabs { display: flex; }
+
+            .search-wrap { max-width: none; }
+
             .sidebar {
                 position: absolute;
-                top: var(--header-h);
+                top: 0;
                 left: 0;
                 right: 0;
                 bottom: 0;
                 width: 100%;
                 z-index: 500;
-                transition: transform 0.25s ease;
+                display: none;
             }
-            .sidebar.hidden { transform: translateX(-100%); }
+            .sidebar.mob-visible { display: flex; }
+
+            .map-wrap { position: relative; flex: 1; }
+
+            .search-results {
+                left: -52px;
+                right: -16px;
+                max-height: 240px;
+            }
+
+            .overlay-ctrl {
+                width: 180px;
+                padding: 8px 10px;
+                top: 8px;
+                right: 8px;
+            }
+
+            .overlay-ctrl .oc-head span { font-size: 11px; }
+            .overlay-ctrl .oc-pill { font-size: 10px; padding: 3px 0; }
+            .overlay-ctrl .oc-row label { font-size: 10px; }
+
+            .sidebar.mob-visible ~ .map-wrap .overlay-ctrl { display: none; }
+
+            .rp { min-width: 200px; }
+
+            .leaflet-popup-content { margin: 10px 12px !important; }
         }
     </style>
 </head>
 <body>
     <header>
-        <button class="mob-toggle" id="mob-toggle" title="Toggle saved places">&#9776;</button>
         <div class="logo">RainClaude</div>
         <div class="search-wrap">
             <span class="search-icon">&#128269;</span>
@@ -594,6 +649,10 @@
             </div>
         </div>
     </main>
+    <div class="mob-tabs" id="mob-tabs">
+        <button class="mob-tab active" data-tab="map"><span class="tab-icon">&#128506;</span>Map</button>
+        <button class="mob-tab" data-tab="list"><span class="tab-icon">&#9733;</span>Places</button>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
@@ -793,9 +852,9 @@
                 openLoadingPopup(lat, lon);
                 var rainfall = await fetchRainfall(lat, lon);
                 openResultPopup(lat, lon, name, rainfall);
-                // On mobile, hide sidebar to reveal map
+                // On mobile, switch to map tab
                 if (window.innerWidth <= 740) {
-                    document.getElementById('sidebar').classList.add('hidden');
+                    switchToMapTab();
                 }
             });
 
@@ -834,7 +893,7 @@
             map.setView([p.lat, p.lon], 12);
             openResultPopup(p.lat, p.lon, displayName(p), p.rainfall);
             if (window.innerWidth <= 740) {
-                document.getElementById('sidebar').classList.add('hidden');
+                switchToMapTab();
             }
         }
 
@@ -892,8 +951,19 @@
                 refreshAll();
             });
 
-            document.getElementById('mob-toggle').addEventListener('click', function () {
-                document.getElementById('sidebar').classList.toggle('hidden');
+            document.getElementById('mob-tabs').addEventListener('click', function (e) {
+                var tab = e.target.closest('.mob-tab');
+                if (!tab) return;
+                var which = tab.dataset.tab;
+                document.querySelectorAll('.mob-tab').forEach(function (t) { t.classList.remove('active'); });
+                tab.classList.add('active');
+                var sidebar = document.getElementById('sidebar');
+                if (which === 'list') {
+                    sidebar.classList.add('mob-visible');
+                } else {
+                    sidebar.classList.remove('mob-visible');
+                    setTimeout(function () { map.invalidateSize(); }, 50);
+                }
             });
 
             document.getElementById('places-list').addEventListener('click', function (e) {
@@ -983,6 +1053,14 @@
             var parts = name.split(',').map(function (s) { return s.trim(); });
             if (parts.length <= 2) return name;
             return parts.slice(0, 2).join(', ');
+        }
+
+        function switchToMapTab() {
+            document.getElementById('sidebar').classList.remove('mob-visible');
+            document.querySelectorAll('.mob-tab').forEach(function (t) {
+                t.classList.toggle('active', t.dataset.tab === 'map');
+            });
+            setTimeout(function () { map.invalidateSize(); }, 50);
         }
 
         function coordLabel(lat, lon) { return lat.toFixed(4) + ', ' + lon.toFixed(4); }
