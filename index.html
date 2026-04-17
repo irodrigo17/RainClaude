@@ -43,6 +43,8 @@
             display: flex;
             align-items: center;
             padding: 0 16px;
+            padding-top: env(safe-area-inset-top, 0px);
+            height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
             gap: 14px;
             z-index: 1000;
             position: relative;
@@ -515,7 +517,7 @@
         /* Mobile tab bar */
         .mob-tabs {
             display: none;
-            padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
+            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
             background: var(--card-bg);
             border-top: 1px solid var(--border);
             flex-shrink: 0;
