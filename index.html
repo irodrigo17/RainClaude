@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>RainClaude</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -506,73 +503,6 @@
         .btn-save:hover { background: var(--accent-hover); }
         .btn-save.saved { background: #16a34a; cursor: default; }
 
-        /* Auth */
-        .auth-area {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-left: auto;
-            flex-shrink: 0;
-        }
-
-        .btn-signin {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 7px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            white-space: nowrap;
-            transition: background 0.15s;
-        }
-
-        .btn-signin:hover { background: var(--accent-hover); }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .user-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 2px solid var(--border);
-        }
-
-        .user-name {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text);
-            white-space: nowrap;
-            max-width: 120px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .btn-signout {
-            background: none;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 12px;
-            color: var(--text-sec);
-            white-space: nowrap;
-            transition: all 0.15s;
-        }
-
-        .btn-signout:hover { border-color: var(--text-sec); color: var(--text); }
-
-        .sync-badge {
-            font-size: 10px;
-            color: #16a34a;
-            white-space: nowrap;
-        }
-
         .leaflet-popup-content-wrapper { border-radius: 10px !important; }
         .leaflet-popup-content { margin: 12px 14px !important; }
 
@@ -657,9 +587,6 @@
             .rp { min-width: 200px; }
 
             .leaflet-popup-content { margin: 10px 12px !important; }
-
-            .user-name { display: none; }
-            .btn-signin { padding: 6px 10px; font-size: 12px; }
         }
     </style>
 </head>
@@ -670,9 +597,6 @@
             <span class="search-icon">&#128269;</span>
             <input type="text" id="search-input" placeholder="Search for a place..." autocomplete="off" />
             <div class="search-results" id="search-results"></div>
-        </div>
-        <div class="auth-area" id="auth-area">
-            <button class="btn-signin" id="btn-signin">Sign in</button>
         </div>
     </header>
     <main>
@@ -735,20 +659,6 @@
     (function () {
         'use strict';
 
-        // --- Firebase ---
-        firebase.initializeApp({
-            apiKey: "AIzaSyDI9rvgHlmPUUK43GU7xkhhUiRJ4LfYgFg",
-            authDomain: "rainclaude-aedde.firebaseapp.com",
-            projectId: "rainclaude-aedde",
-            storageBucket: "rainclaude-aedde.firebasestorage.app",
-            messagingSenderId: "445607774745",
-            appId: "1:445607774745:web:81a0f2b9ac3681591fb888"
-        });
-        var auth = firebase.auth();
-        var db = firebase.firestore();
-        var currentUser = null;
-        var firestoreUnsubscribe = null;
-
         // --- State ---
         const STORE_KEY = 'rain-tracker-places';
         let savedPlaces = [];
@@ -759,120 +669,6 @@
             savedPlaces = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
         } catch { savedPlaces = []; }
 
-        // --- Auth ---
-        function setupAuth() {
-            var authArea = document.getElementById('auth-area');
-            var btnSignin = document.getElementById('btn-signin');
-
-            btnSignin.addEventListener('click', function () {
-                var provider = new firebase.auth.GoogleAuthProvider();
-                auth.signInWithPopup(provider).catch(function (err) {
-                    console.error('Sign-in error:', err);
-                });
-            });
-
-            auth.onAuthStateChanged(function (user) {
-                currentUser = user;
-                if (user) {
-                    authArea.innerHTML =
-                        '<div class="user-info">' +
-                        (user.photoURL ? '<img class="user-avatar" src="' + user.photoURL + '" alt="" referrerpolicy="no-referrer" />' : '') +
-                        '<span class="user-name">' + esc(user.displayName || user.email) + '</span>' +
-                        '<button class="btn-signout" id="btn-signout">Sign out</button>' +
-                        '</div>';
-                    document.getElementById('btn-signout').addEventListener('click', function () {
-                        auth.signOut();
-                    });
-                    subscribeFirestore(user.uid);
-                } else {
-                    authArea.innerHTML = '<button class="btn-signin" id="btn-signin">Sign in</button>';
-                    document.getElementById('btn-signin').addEventListener('click', function () {
-                        var provider = new firebase.auth.GoogleAuthProvider();
-                        auth.signInWithPopup(provider).catch(function (err) {
-                            console.error('Sign-in error:', err);
-                        });
-                    });
-                    if (firestoreUnsubscribe) {
-                        firestoreUnsubscribe();
-                        firestoreUnsubscribe = null;
-                    }
-                    // Reload from localStorage
-                    try {
-                        savedPlaces = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
-                    } catch { savedPlaces = []; }
-                    renderList();
-                    updateMarkers();
-                    refreshAll();
-                }
-            });
-        }
-
-        // --- Firestore sync ---
-        function userDocRef(uid) {
-            return db.collection('users').doc(uid);
-        }
-
-        function placesForFirestore() {
-            return savedPlaces.map(function (p) {
-                var clean = { lat: p.lat, lon: p.lon, name: p.name };
-                if (p.customName) clean.customName = p.customName;
-                return clean;
-            });
-        }
-
-        function subscribeFirestore(uid) {
-            if (firestoreUnsubscribe) firestoreUnsubscribe();
-
-            var docRef = userDocRef(uid);
-            var initialLoad = true;
-
-            firestoreUnsubscribe = docRef.onSnapshot(function (doc) {
-                if (doc.exists && doc.data().places) {
-                    var remotePlaces = doc.data().places;
-                    if (initialLoad && savedPlaces.length > 0 && remotePlaces.length === 0) {
-                        // First sign-in: push local places to cloud
-                        docRef.set({ places: placesForFirestore() });
-                    } else {
-                        // Merge: keep rainfall data from local if coords match
-                        savedPlaces = remotePlaces.map(function (rp) {
-                            var local = savedPlaces.find(function (lp) {
-                                return lp.lat === rp.lat && lp.lon === rp.lon;
-                            });
-                            return {
-                                lat: rp.lat,
-                                lon: rp.lon,
-                                name: rp.name,
-                                customName: rp.customName || undefined,
-                                rainfall: local ? local.rainfall : null
-                            };
-                        });
-                        persistLocal();
-                        renderList();
-                        updateMarkers();
-                        refreshAll();
-                    }
-                } else if (initialLoad && savedPlaces.length > 0) {
-                    // No cloud data yet, push local places
-                    docRef.set({ places: placesForFirestore() });
-                }
-                initialLoad = false;
-            }, function (err) {
-                console.error('Firestore listen error:', err);
-            });
-        }
-
-        function persistCloud() {
-            if (currentUser) {
-                userDocRef(currentUser.uid).set({ places: placesForFirestore() }).catch(function (err) {
-                    console.error('Firestore save error:', err);
-                });
-            }
-        }
-
-        function persistLocal() {
-            try { localStorage.setItem(STORE_KEY, JSON.stringify(savedPlaces)); } catch {}
-        }
-
         // --- Boot ---
         function init() {
             initMap();
@@ -882,7 +678,6 @@
             setupSearch();
             setupEvents();
             initOverlay();
-            setupAuth();
         }
 
         // --- Map ---
@@ -1071,8 +866,7 @@
 
         // --- Saved Places ---
         function persist() {
-            persistLocal();
-            persistCloud();
+            try { localStorage.setItem(STORE_KEY, JSON.stringify(savedPlaces)); } catch {}
         }
 
         function isPlaceSaved(lat, lon) {
